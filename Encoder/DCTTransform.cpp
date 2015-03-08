@@ -10,12 +10,12 @@ DCTTransform::DCTTransform()
 {
 	double C;
 	int N = 8;
+	C = sqrt(1/(double)N); // i is 0 voor de eerste loop
 	for(int i=0; i<N; i++){
 		for(int j=0; j<N; j++){
-			C = sqrt(1/(double)N);
-			if(i>0) C = sqrt(2/(double)N);
 			A[i][j] = C*cos(((2*j+1)*i*M_PI)/(2*N));
 		}
+		C = sqrt(2/(double)N); // i is nu groter dan 0
 	}
 }
 
