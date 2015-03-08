@@ -10,7 +10,7 @@ DCTTransform::DCTTransform()
 {
 	double C;
 	int N = 8;
-	for(int i=0; i<N, i++){
+	for(int i=0; i<N; i++){
 		for(int j=0; j<N; j++){
 			C = sqrt(1/(double)N);
 			if(i>0) C = sqrt(2/(double)N);
