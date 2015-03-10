@@ -27,6 +27,12 @@ protected:
 	pixel	pixel_up_left_cr;
 
 	Frame* current_frame;
+
+private:
+	Macroblock* getIntraPredictVert(int current_mb, int width, int height);
+	Macroblock* getIntraPredictHor(int current_mb, int width, int height);
+	Macroblock* getIntraPredictDiag(int current_mb, int width, int height);
+	Macroblock* getIntraPredictDC(int current_mb, int width, int height);
 };
 
 #endif

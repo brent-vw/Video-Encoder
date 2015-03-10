@@ -58,3 +58,15 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 
 	return mode; // Optimale mode als return-waarde
 }
+
+Macroblock* IntraPredictor::getIntraPredictVert(int current_mb, int width, int height)
+{
+	int next_mb = current_mb + width;
+	//Dit kan oos gaan!!!!
+	Macroblock *mout = &Macroblock(*(current_frame->getMacroblock(current_mb)));
+	Plane luma = mout->luma;
+	Plane cb = mout->cb;
+	Plane cr = mout->cr;
+
+	for (int i=0;
+}
