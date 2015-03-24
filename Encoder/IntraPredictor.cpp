@@ -7,6 +7,7 @@
 
 #define CALC_DIFF(x, y) ( x - y ) * ( x - y )
 //#define CALC_DIFF(x, y) abs( x - y )
+#define DEFAULT 128
 
 IntraPredictor::IntraPredictor()
 {
@@ -45,7 +46,14 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 
 	// Haal de predictiepixels op uit omliggende macroblokken (links, boven, linksboven)
 	// Indien de pixels niet beschikbaar zijn, gebruik de waarde 128
-	// ... //
+	Macroblock *vert, *horz, *diag;
+
+	//niet eerste kol
+	if(current_mb%width>0) vert = current_frame->getMacroblock(current_mb-1);
+	//niet eerste rij
+	if(current_mb >= width) horz = current_frame->getMacroblock(current_mb-width);
+	//diag
+	if((current_mb%current_frame->getWidth() > 0) && (current_mb >= width)) diag = current_frame->getMacroblock(current_mb-width-1);
 
 
 	// Evalueer de verschillende predictiemodes (op basis van de luma-component)
@@ -59,7 +67,7 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 	return mode; // Optimale mode als return-waarde
 }
 
-Macroblock* IntraPredictor::getIntraPredictVert(int current_mb, int width, int height)
+void getIntraPredictVert(int current_mb, int width, int height)
 {
 	int next_mb = current_mb + width;
 	//Dit kan oos gaan!!!!
