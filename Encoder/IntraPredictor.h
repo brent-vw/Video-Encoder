@@ -28,11 +28,12 @@ protected:
 
 	Frame* current_frame;
 
-private:
-	Macroblock* getIntraPredictVert(int current_mb, int width, int height);
-	Macroblock* getIntraPredictHor(int current_mb, int width, int height);
-	Macroblock* getIntraPredictDiag(int current_mb, int width, int height);
-	Macroblock* getIntraPredictDC(int current_mb, int width, int height);
+	int SSE(pixel** curr, pixel** residu, int size);
+	int predDC(pixel** &pred, bool calc);
+	int predHor();
+	int predVer();
+	int predDia();
+
 };
 
 #endif
