@@ -187,7 +187,7 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 	{
 		for (int j = 0; j < LUM-1; j++)
 		{
-			mb->luma[i][j] = prediction_res_lum[i][j];
+			mb->luma[i][j] -= prediction_res_lum[i][j];
 		}
 	}
 
@@ -195,8 +195,8 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 	{
 		for (int j = 0; j < CHROM-1; j++)
 		{
-			mb->cb[i][j] = prediction_res_cb[i][j];
-			mb->cr[i][j] = prediction_res_cr[i][j];
+			mb->cb[i][j] -= prediction_res_cb[i][j];
+			mb->cr[i][j] -= prediction_res_cr[i][j];
 		}
 	}
 	//geeft geheugen van de arrays vrij
