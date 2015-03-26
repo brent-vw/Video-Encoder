@@ -95,8 +95,8 @@ void MotionCompensator::motionCompensate(Macroblock *mb)
 		for(int j=0;j<16;j++)
 			mb->luma[i][j] -= GetRefPixelLuma(j+xLum, i+yLum); 
 	
-	int xChrom = mb->mv.x/2+(mb->getXPos() * 8);
-	int yChrom = mb->mv.y/2+(mb->getYPos() * 8);
+	int xChrom = mb->mv.x/2 + (mb->getXPos() * 8);
+	int yChrom = mb->mv.y/2 + (mb->getYPos() * 8);
 
 	for(int i=0; i<8;i++){
 		for(int j=0;j<8;j++){
