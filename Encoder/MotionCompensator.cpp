@@ -56,7 +56,7 @@ void MotionCompensator::motionCompensate(Macroblock *mb)
 	//Absolute positie
 	int xAbsolute = (mb->getXPos())*16 -(search_width-16)/2;    
 	int yAbsolute = (mb->getYPos())*16 -(search_height-16)/2; 
-	
+
 	for(int i=yRelBegin; i<yRelEnd; i++)
 		for(int j=xRelBegin; j<xRelEnd; j++)
 			search_buffer[i][j] = GetRefPixelLuma(j+xAbsolute, i+yAbsolute);		
@@ -117,7 +117,7 @@ int MotionCompensator::GetRefPixelLuma(int x, int y)
 	if(y<0 || (y>=ref_height*16)) return DEFAULT;
 
 	//Binnen referentiebeeld:
-	int rel = (int)(((x/16) + (y/16))*ref_width);
+	int rel = (int)(((x/16.0) + (y/16.0))*ref_width);
 	return reference_frame->getMacroblock(rel)->luma[x % 16][y % 16];
 }
 
@@ -128,7 +128,7 @@ int MotionCompensator::GetRefPixelCb(int x, int y)
 	if(y<0 || (y>=ref_height*8)) return DEFAULT;
 
 	//Binnen referentiebeeld:
-	int rel = (int)(((x/8) + (y/8))*ref_width);
+	int rel = (int)(((x/8.0) + (y/8.0))*ref_width);
 	return reference_frame->getMacroblock(rel)->cb[x % 8][y % 8];
 }
 
@@ -139,6 +139,6 @@ int MotionCompensator::GetRefPixelCr(int x, int y)
 	if(y<0 || (y>=ref_height*8)) return DEFAULT;
 
 	//Binnen referentiebeeld:
-	int rel = (int)(((x/8) + (y/8))*ref_width);
+	int rel = (int)(((x/8.0) + (y/8.0))*ref_width);
 	return reference_frame->getMacroblock(rel)->cr[x % 8][y % 8];	
 }
