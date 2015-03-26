@@ -42,9 +42,11 @@ void DCTTransform::Transform_8x8(pixel **block, int offset_x, int offset_y)
 	int AX[8][8];
 	for(int i=0; i<8; i++){
 		for(int j=0; j<8; j++){
+			int tot = 0;
 			for(int k=0; k<8; k++){
-				AX[i][j] += A[i][k] * block[k+offset_x][j+offset_y];
+				tot += A[i][k] * block[k+offset_x][j+offset_y];
 			}
+			AX[i][j] = tot;
 		}
 	}
 
@@ -52,11 +54,12 @@ void DCTTransform::Transform_8x8(pixel **block, int offset_x, int offset_y)
 	for(int i=0; i<8; i++){
 		for(int j=0; j<8; j++){
 			//Waarden op 0 zetten voor hergebruik
-			block[i+offset_x][j+offset_y] = 0;
+			int tot = 0;
 			for(int k=0; k<8; k++){
 				// A[i][j] = (A[j][i])^T
-				block[i+offset_x][j+offset_y] = AX[i][k] * A[j][k];
+				tot += AX[i][k] * A[j][k];
 			}
+			block[i+offset_x][j+offset_y] = tot;
 		}
 	}
 }

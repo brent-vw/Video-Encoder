@@ -3,7 +3,12 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #include "Config.h"
+
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 
 #define CALC_DIFF(x, y) ( x - y ) * ( x - y )
 //#define CALC_DIFF(x, y) abs( x - y )
@@ -82,37 +87,39 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 {
 	// get current macroblock
 	Macroblock* mb = current_frame->getMacroblock(current_mb);
-
 	// Haal de predictiepixels op uit omliggende macroblokken (links, boven, linksboven)
 	// Indien de pixels niet beschikbaar zijn, gebruik de waarde 128
-	Macroblock *vert, *horz, *diag;
+	Macroblock *vert = NULL, *horz = NULL, *diag=NULL;
 	bool vertini, horzini, diagini;
 
 	//niet eerste kol
 	vertini = false;
 	if(current_mb%width>0) {
 		vert = current_frame->getMacroblock(current_mb-1);
+	}
+	if(vert){
 		vertini = true;
-		for (int i = 0; i < LUM; i++)
+		for (int i = 0; i < LUM-1; i++)
 		{
 			pixels_up_luma[i] = vert->luma[i][LUM-1];
 		}
-		for (int i = 0; i < CHROM; i++)
+		for (int i = 0; i < CHROM-1; i++)
 		{
 			pixels_up_cb[i] = vert->cb[i][CHROM-1];
 			pixels_up_cr[i] = vert->cr[i][CHROM-1];
 		}
 	}
+	
 	//niet eerste rij
 	horzini = false;
 	if(current_mb >= width) {
 		horz = current_frame->getMacroblock(current_mb-width);
 		horzini = true;
-		for (int i = 0; i < LUM; i++)
+		for (int i = 0; i < LUM-1; i++)
 		{
 			pixels_left_luma[i] = horz->luma[LUM-1][i];
 		}
-		for (int i = 0; i < CHROM; i++)
+		for (int i = 0; i < CHROM-1; i++)
 		{
 			pixels_left_cb[i] = vert->cb[CHROM-1][i];
 			pixels_left_cr[i] = vert->cr[CHROM-1][i];
@@ -134,14 +141,13 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 	int DCEn,horzEn,vertEn ,diagEn;
 	pixel** prediction_lum = NULL;
 	initTussMatrix(prediction_lum, LUM);
-
+	
 	DCEn = predDC(prediction_lum, horzini, pixels_left_luma, vertini, pixels_up_luma, LUM, true, mb->luma);
 	horzEn = predHor(prediction_lum, horzini, pixels_left_luma, LUM, true, mb->luma);
 	vertEn = predVer(prediction_lum, vertini, pixels_up_luma, LUM, true, mb->luma);
 	diagEn = predDia(prediction_lum, horzini, pixels_left_luma, vertini, pixels_up_luma, diagini, pixel_up_left_luma, LUM, true, mb->luma);
-
+	
 	mode = determineMode(DCEn, horzEn, vertEn, diagEn);
-
 	deleteTussMatrix(prediction_lum, LUM);
 	// Bereken het residu voor de geselecteerde predictiemode (voor luma en chroma)
 	pixel** prediction_res_lum = NULL;
@@ -150,6 +156,7 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 	initTussMatrix(prediction_res_cb, CHROM);
 	pixel** prediction_res_cr = NULL;
 	initTussMatrix(prediction_res_cr, CHROM);
+	
 	switch (mode)
 	{
 	case 0:
@@ -176,17 +183,17 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 		break;
 	}
 
-	for (int i = 0; i < LUM; i++)
+	for (int i = 0; i < LUM-1; i++)
 	{
-		for (int j = 0; j < LUM; j++)
+		for (int j = 0; j < LUM-1; j++)
 		{
 			mb->luma[i][j] = prediction_res_lum[i][j];
 		}
 	}
 
-	for (int i = 0; i < CHROM; i++)
+	for (int i = 0; i < CHROM-1; i++)
 	{
-		for (int j = 0; j < CHROM; j++)
+		for (int j = 0; j < CHROM-1; j++)
 		{
 			mb->cb[i][j] = prediction_res_cb[i][j];
 			mb->cr[i][j] = prediction_res_cr[i][j];
@@ -202,9 +209,9 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 int IntraPredictor::SSE(pixel** curr, pixel** residu, int size)
 {
 	int sse = 0;
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size-1; i++)
 	{
-		for (int j = 0; j < size; j++)
+		for (int j = 0; j < size-1; j++)
 		{
 			int pow = curr[i][j] - residu[i][j];
 			sse += pow*pow;
@@ -215,44 +222,43 @@ int IntraPredictor::SSE(pixel** curr, pixel** residu, int size)
 
 int IntraPredictor::predDC(pixel** res, bool left, pixel* leftp, bool up, pixel* upp, int size, bool calc, pixel** current)
 {
-	int left = 0;
-	int up = 0;
-
+	int left_energy = 0;
+	int up_energy = 0;
+	
 	if(left){
-		for (int i = 0; i < size; i++)
+		for (int i = 0; i < size-1; i++)
 		{
-			left += leftp[i];
+			left_energy += leftp[i];
 		}
-	} else left = DEFAULT;
-
+	} else left_energy = DEFAULT;
+		
 	if(up){
-		for (int i = 0; i < size; i++)
+		for (int i = 0; i < size-1; i++)
 		{
-			up += upp[i];
+			up_energy += upp[i];
 		}
-	} else up = DEFAULT;
-
-	for (int i = 0; i < size; i++)
+	} else up_energy = DEFAULT;
+	
+	for (int i = 0; i < size-1; i++)
 	{
-		for (int i = 0; i < size; i++)
+		for (int j = 0; j < size-1; j++)
 		{
-			res[i][j] = (pixel)((left+up)/(2*size));
+			res[i][j] = (pixel)((left_energy+up_energy)/(2*size));
 		}
 	}
-	
 	if(calc) return(SSE(current, res, size));
 	return -1;
 }
 
 int IntraPredictor::predHor(pixel** res, bool left, pixel* leftp, int size, bool calc, pixel** current)
 {
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size-1; i++)
 	{
 		int horz;
 		if(left) horz = leftp[i];
 		else horz = DEFAULT;
 	
-		for (int j = 0; j < size; j ++)
+		for (int j = 0; j < size-1; j ++)
 		{
 			res[i][j] = horz;
 		}
@@ -264,13 +270,13 @@ int IntraPredictor::predHor(pixel** res, bool left, pixel* leftp, int size, bool
 
 int IntraPredictor::predVer(pixel** res, bool up, pixel* upp, int size, bool calc, pixel** current)
 {
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size-1; i++)
 	{
 		int vert;
 		if(up) vert = upp[i];
 		else vert = DEFAULT;
 
-		for (int j = 0; j < size; j++)
+		for (int j = 0; j < size-1; j++)
 		{
 			res[j][i] = vert;
 		}
@@ -282,9 +288,9 @@ int IntraPredictor::predVer(pixel** res, bool up, pixel* upp, int size, bool cal
 
 int IntraPredictor::predDia(pixel** res, bool left, pixel* leftp, bool up, pixel* upp, bool upleft, pixel upleftp, int size, bool calc, pixel** current)
 {
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size-1; i++)
 	{
-		for (int j = 0; j < size; j++)
+		for (int j = 0; j < size-1; j++)
 		{
 			if((i<j)&&up) res[i][j] = upp[j-i-1];
 			else if((i>j)&&left) res[i][j] = leftp[i-j-1];

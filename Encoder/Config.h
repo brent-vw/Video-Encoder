@@ -7,6 +7,6 @@
 #define	DO_DCT		true
 #define	DO_QT		true
 #define DO_MC		true
-#define DO_INTRA	true
+#define DO_INTRA	false
 
 #endif

@@ -33,7 +33,7 @@ void Quantiser::Quantise_8x8(pixel **block, int offset_x, int offset_y, int qp)
 {
 	for(int i=0; i<8; i++){
 		for(int j=0; j<8; j++){
-			block[i][j]	= sgn(block[i][j]) * abs((block[i][j] / qp) + 0.5);
+			block[i][j]	= (pixel)(sgn(block[i][j]) * abs((block[i][j] / qp) + 0.5));
 		}
 	}
 }
