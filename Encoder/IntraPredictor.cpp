@@ -94,7 +94,7 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 
 	//niet eerste kol
 	vertini = false;
-	if(current_mb%width>0) {
+	if(current_mb%width>=0 && current_mb != 0) {
 		vert = current_frame->getMacroblock(current_mb-1);
 	}
 	if(vert){
