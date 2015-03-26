@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <limits>
 
+
 #include "Config.h"
 
 #define CALC_DIFF(x, y) ( x - y ) * ( x - y )
@@ -42,7 +43,8 @@ Frame *MotionCompensator::getReferenceFrame()
 // Breng wijzigingen aan in onderstaande methode
 void MotionCompensator::motionCompensate(Macroblock *mb)
 {
-	
+	// TODO; Crashed bij interval groter dan 1. Fout nog niet gevonden :(.
+
 	/////////////////////////
 	// Bewegingsestimatie //
 	////////////////////////
@@ -104,6 +106,9 @@ void MotionCompensator::motionCompensate(Macroblock *mb)
 			mb->cb[i][j] -= GetRefPixelCb(j+xChrom, i+yChrom);
 		}
 	}	
+
+
+
 }
 
 // Breng wijzigingen aan in onderstaande methode

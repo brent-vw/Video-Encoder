@@ -141,12 +141,12 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 	int DCEn,horzEn,vertEn ,diagEn;
 	pixel** prediction_lum = NULL;
 	initTussMatrix(prediction_lum, LUM);
-	
+	//berekend de energie voor de Luma van elke predictiemehode
 	DCEn = predDC(prediction_lum, horzini, pixels_left_luma, vertini, pixels_up_luma, LUM, true, mb->luma);
 	horzEn = predHor(prediction_lum, horzini, pixels_left_luma, LUM, true, mb->luma);
 	vertEn = predVer(prediction_lum, vertini, pixels_up_luma, LUM, true, mb->luma);
 	diagEn = predDia(prediction_lum, horzini, pixels_left_luma, vertini, pixels_up_luma, diagini, pixel_up_left_luma, LUM, true, mb->luma);
-	
+	//bepaald de beste modus
 	mode = determineMode(DCEn, horzEn, vertEn, diagEn);
 	deleteTussMatrix(prediction_lum, LUM);
 	// Bereken het residu voor de geselecteerde predictiemode (voor luma en chroma)
@@ -156,7 +156,7 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 	initTussMatrix(prediction_res_cb, CHROM);
 	pixel** prediction_res_cr = NULL;
 	initTussMatrix(prediction_res_cr, CHROM);
-	
+	//gebruikt deze mode
 	switch (mode)
 	{
 	case 0:
@@ -182,7 +182,7 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 	default:
 		break;
 	}
-
+	//past de predictie toe
 	for (int i = 0; i < LUM-1; i++)
 	{
 		for (int j = 0; j < LUM-1; j++)
@@ -199,7 +199,7 @@ int IntraPredictor::predictIntra(int current_mb, int width, int height)
 			mb->cr[i][j] = prediction_res_cr[i][j];
 		}
 	}
-
+	//geeft geheugen van de arrays vrij
 	deleteTussMatrix(prediction_res_lum,LUM);
 	deleteTussMatrix(prediction_res_cb,CHROM);
 	deleteTussMatrix(prediction_res_cr, CHROM);
